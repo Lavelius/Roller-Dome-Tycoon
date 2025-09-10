@@ -1,1 +1,2 @@
-print("Hello world, from server!")
+print("which file is am i")
+print("init.server.luau")
