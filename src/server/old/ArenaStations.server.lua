@@ -23,6 +23,24 @@ for i = 1, 8 do
 	table.insert(stations, { wall = wall, loadingZone = loading, owner = nil, podium = nil })
 end
 
+local function debugAttachments(dieModel)
+	for _, att in ipairs(dieModel:GetDescendants()) do
+		if att:IsA("Attachment") and att.Parent:IsA("BasePart") then
+			print(
+				att:GetFullName(),
+				"FaceValue=",
+				att:GetAttribute("FaceValue"),
+				"dotUp(Look)=",
+				att.WorldCFrame.LookVector:Dot(Vector3.yAxis),
+				"dotUp(Up)=",
+				att.WorldCFrame.UpVector:Dot(Vector3.yAxis),
+				"dotUp(Right)=",
+				att.WorldCFrame.RightVector:Dot(Vector3.yAxis)
+			)
+		end
+	end
+end
+
 local function getAnyPart(inst)
 	return inst:FindFirstChildWhichIsA("BasePart") or (inst:IsA("BasePart") and inst) or nil
 end
@@ -104,6 +122,7 @@ local function spawnAndLaunchFromMuzzle(muzzle, ownerId)
 		startDieWatcher(die, ownerId)
 	end)
 	die.Parent = ACTIVE_DICE
+	debugAttachments(die)
 
 	local muzzleCF = getMuzzleCF(muzzle)
 	local forward = -muzzleCF.LookVector
@@ -176,7 +195,7 @@ local function wireCannonForOwner(cannon, ownerPlayer)
 	click.MouseClick:Connect(function(player)
 		if player.UserId == ownerPlayer.UserId then
 			print("Dice cannon used by", player.Name)
-			if time() - last < 1 then
+			if time() - last > 1 then
 				spawnAndLaunchFromMuzzle(muzzle, ownerPlayer.UserId)
 				last = time()
 			end
