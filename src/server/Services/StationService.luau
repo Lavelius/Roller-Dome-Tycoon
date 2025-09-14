@@ -20,14 +20,13 @@ function StationService.init()
 end
 
 function StationService.claimFree(player)
-	for i, station in ipairs(stations) do
-		if not station.owner then
-			station.owner = player
-			local cf = station.loadingZone.WorldCFrame
-			return i, cf
+	for i, st in ipairs(stations) do
+		if not st.owner then
+			st.owner = player
+			return i, st.loadingZone.WorldCFrame
 		end
 	end
-	return nil
+	return nil, nil
 end
 
 function StationService.release(player)
@@ -68,7 +67,7 @@ function StationService.spawnPodium(player, stationId)
 	end
 
 	local cf = station.loadingZone.WorldCFrame
-	local position = cf.Position + (cf.UpVector * 11) + (-cf.LookVector * 0.5)
+	local position = cf.Position + cf.UpVector * 11 + (-cf.LookVector * 0.5)
 	local facing = cf.LookVector
 	podium:PivotTo(CFrame.lookAt(position, position + facing))
 
@@ -79,7 +78,14 @@ end
 
 function StationService.getStationCF(stationId)
 	local st = stations[stationId]
-	return st and st.loadingZone.WorldCFrame or nil
+	if not st then
+		return nil
+	end
+	local att = st.loadingZone
+	if not att or not att:IsA("Attachment") then
+		return nil
+	end
+	return att.WorldCFrame
 end
 
 function StationService.getPlayerPodium(player)
@@ -92,6 +98,3 @@ function StationService.getPlayerPodium(player)
 end
 
 return StationService
-
---- IGNORE ---
---- IGNORE ---

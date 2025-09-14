@@ -4,17 +4,24 @@ local ServerScriptService = game:GetService("ServerScriptService")
 local ServerFolder = ServerScriptService:WaitForChild("Server")
 local ServicesFolder = ServerFolder:WaitForChild("Services")
 
+local ptcInst = ServerFolder:WaitForChild("Controllers"):WaitForChild("PlayerTycoonController")
+print("PTC class:", ptcInst.ClassName, "path:", ptcInst:GetFullName())
+
 local okPDS, PlayerDataService = pcall(require, ServicesFolder:WaitForChild("PlayerDataService"))
 local okSTS, StationService = pcall(require, ServicesFolder:WaitForChild("StationService"))
+local okPTC, Tycoon = pcall(require, (ServerFolder:WaitForChild("Controllers"):WaitForChild("PlayerTycoonController")))
 
 print("PDS require ok?", okPDS, "type:", typeof(PlayerDataService)) -- expect: true, "table"
 print("STS require ok?", okSTS, "type:", typeof(StationService)) -- expect: true, "table"
-
+print("PTC require ok?", okPTC, "type:", typeof(Tycoon)) -- expect: true, "table"
 if not okPDS then
 	error(PlayerDataService)
 end
 if not okSTS then
 	error(StationService)
+end
+if not okPTC then
+	error("PlayerTycoonController require failed: " .. tostring(Tycoon))
 end
 
 PlayerDataService.init()
@@ -53,7 +60,7 @@ Players.PlayerAdded:Connect(function(player)
 	PlayerDataService.load(player)
 
 	-- 2) Claim a free station
-	local stationId = StationService.claimFree(player)
+	local stationId, stationCF = StationService.claimFree(player)
 	if not stationId then
 		warn("No free stations available for", player.Name)
 		return
@@ -67,6 +74,10 @@ Players.PlayerAdded:Connect(function(player)
 		warn("Failed to spawn podium for", player.Name)
 		return
 	end
+
+	-- Hydrate the podium (wiring up plates, cannons, etc)
+	local state = PlayerDataService.get(player)
+	Tycoon.hydrate(player, podium, stationCF, state.upgrades)
 
 	-- 4) Teleport player to podium (now and on respawns)
 	teleportToPodium(player)
