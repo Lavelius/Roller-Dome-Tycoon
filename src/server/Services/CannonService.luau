@@ -1,6 +1,7 @@
 -- setup
 
 local ServerStorage = game:GetService("ServerStorage")
+local ShopService = require(script.Parent:WaitForChild("ShopService"))
 local Config = require(
 	game:GetService("ServerScriptService"):WaitForChild("Server"):WaitForChild("ConfigFolder"):WaitForChild("Config")
 )
@@ -11,7 +12,7 @@ local CannonService = {}
 local Templates = ServerStorage:WaitForChild("Templates")
 local CannonTemplate = Templates:WaitForChild("DiceCannon")
 
-function CannonService.spawnAt(placePos, stationCF, ownerId, parentInstance)
+function CannonService.spawnAt(placePos, stationCF, ownerId, parentInstance, cannonKey)
 	local inward = -stationCF.LookVector
 	local up = Vector3.yAxis
 	local baseCF = CFrame.lookAt(placePos, placePos + inward, up)
@@ -29,6 +30,7 @@ function CannonService.spawnAt(placePos, stationCF, ownerId, parentInstance)
 
 	local cannon = CannonTemplate:Clone()
 	cannon:SetAttribute("OwnerUserId", ownerId)
+	cannon:SetAttribute("CannonKey", cannonKey)
 	cannon:PivotTo(finalCF)
 	cannon.Parent = parentInstance or workspace:FindFirstChild("Cannons") or workspace
 	CannonService.wire(cannon)
@@ -36,13 +38,14 @@ function CannonService.spawnAt(placePos, stationCF, ownerId, parentInstance)
 end
 
 function CannonService.wire(cannon)
-	local button = cannon:WaitForChild("Button")
+	local button = cannon:WaitForChild("Barrel"):WaitForChild("Button")
 	local click = button:WaitForChild("ClickDetector")
-	local muzzle = cannon:WaitForChild("Muzzle")
+	local muzzle = cannon:WaitForChild("Barrel"):WaitForChild("Muzzle")
 
 	click.MaxActivationDistance = Config.Cannon.ClickDistance or 64
 
 	local ownerId = tonumber(cannon:GetAttribute("OwnerUserId"))
+	local cannonKey = cannon:GetAttribute("CannonKey") or "cannon1"
 	local lastFired = 0
 	local cooldown = Config.Cannon.CooldownSec or 1.0
 
@@ -58,7 +61,23 @@ function CannonService.wire(cannon)
 		lastFired = now
 
 		print(player.Name, "Fired their cannon!")
-		local _roll, _sides = DiceService.fire(muzzle, ownerId)
+		local _roll, _sides = DiceService.fire(muzzle, ownerId, cannonKey)
+	end)
+
+	local prompt = Instance.new("ProximityPrompt")
+	prompt.Name = "UpgradePrompt"
+	prompt.ActionText = "Upgrade Die"
+	prompt.ObjectText = "Cannon"
+	prompt.HoldDuration = 0
+	prompt.RequiresLineOfSight = false
+	prompt.MaxActivationDistance = 10
+	prompt.Parent = button
+
+	prompt.Triggered:Connect(function(player)
+		if player.UserId ~= ownerId then
+			return
+		end
+		ShopService.upgradeDie(player, cannonKey) -- server validates + charges + sets new sides
 	end)
 end
 

@@ -123,14 +123,14 @@ local function watchAndPayout(die, part, ownerId, sides)
 end
 
 -- muzzle: Attachment or Part; ownerId: number
-function DiceService.fire(muzzle, ownerId)
+function DiceService.fire(muzzle, ownerId, cannonKey)
 	local player = game:GetService("Players"):GetPlayerByUserId(ownerId)
 	if not player then
 		return
 	end
 
 	-- choose template by player’s current dieSides
-	local sides = PlayerDataService.getDieSides(player) -- 4/6/8/10/12/20
+	local sides = PlayerDataService.getDieSides(player, cannonKey) -- 4/6/8/10/12/20
 	local name = "D" .. tostring(sides)
 	local template = DICE_FOLDER:FindFirstChild(name)
 	if not template then
@@ -172,7 +172,7 @@ function DiceService.fire(muzzle, ownerId)
 	end)
 	local mass = part.AssemblyMass
 	part:ApplyImpulse(-dir * (POWER * mass))
-	part:ApplyAngularImpulse(Vector3.new(0, 1, 0) * (POWER * mass * 0.03))
+	part:ApplyAngularImpulse(Vector3.new(0, 1, 1) * (POWER * mass * 0.5))
 
 	-- watch for landing + payout
 	task.spawn(function()

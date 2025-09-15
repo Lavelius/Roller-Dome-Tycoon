@@ -66,13 +66,13 @@ function Tycoon.hydrate(player, podium, stationCF, upgrades)
 	if upgrades and upgrades.cannon and plate1 then
 		local pos = plate1.Position + Vector3.new(0, 0.1, 0)
 		plate1:Destroy()
-		CannonService.spawnAt(pos, stationCF, ownerId, podium)
+		CannonService.spawnAt(pos, stationCF, ownerId, podium, "cannon1")
 		plate1 = nil
 	end
 	if upgrades and upgrades.cannon2 and plate2 then
 		local pos = plate2.Position + Vector3.new(0, 0.1, 0)
 		plate2:Destroy()
-		CannonService.spawnAt(pos, stationCF, ownerId, podium)
+		CannonService.spawnAt(pos, stationCF, ownerId, podium, "cannon2")
 		plate2 = nil
 	end
 	if plate1 then

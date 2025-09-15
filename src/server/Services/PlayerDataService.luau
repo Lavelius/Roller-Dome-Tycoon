@@ -3,13 +3,14 @@ local stateByUserId = {}
 
 local DEFAULT = {
 	_v = 1,
-	dubloons = 0,
+	dubloons = 100000,
 	stationId = nil,
 	dieSides = 4,
 	upgrades = {
 		cannon1 = false,
 		cannon2 = false,
 	},
+	dice = { cannon1 = 4, cannon2 = 4 },
 }
 
 local function deepCopy(t)
@@ -84,13 +85,21 @@ function PlayerDataService.trySpendDubloons(player, cost)
 	return false
 end
 
-function PlayerDataService.getDieSides(player)
+function PlayerDataService.getDieSides(player, cannonKey)
 	local s = PlayerDataService.get(player) or PlayerDataService.load(player)
-	return s.dieSides or 4
+	cannonKey = cannonKey or "cannon1"
+	local d = s.dice or {}
+	s.dice = d
+	d[cannonKey] = d[cannonKey] or 4
+	return d[cannonKey]
 end
-function PlayerDataService.setDieSides(player, sides)
+
+function PlayerDataService.setDieSides(player, cannonKey, sides)
 	local s = PlayerDataService.get(player) or PlayerDataService.load(player)
-	s.dieSides = sides
+	cannonKey = cannonKey or "cannon1"
+	local d = s.dice or {}
+	s.dice = d
+	d[cannonKey] = sides
 end
 
 return PlayerDataService
