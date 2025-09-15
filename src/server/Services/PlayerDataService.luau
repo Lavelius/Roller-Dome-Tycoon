@@ -5,6 +5,7 @@ local DEFAULT = {
 	_v = 1,
 	dubloons = 0,
 	stationId = nil,
+	dieSides = 4,
 	upgrades = {
 		cannon1 = false,
 		cannon2 = false,
@@ -57,16 +58,39 @@ end
 function PlayerDataService.addDubloons(player, amount)
 	local s = PlayerDataService.get(player) or PlayerDataService.load(player)
 	s.dubloons = (s.dubloons or 0) + (amount or 0)
+	local ls = player:FindFirstChild("leaderstats")
+	if ls then
+		local d = ls:FindFirstChild("Dubloons")
+		if d then
+			d.Value = s.dubloons
+		end
+	end
 end
 
 function PlayerDataService.trySpendDubloons(player, cost)
 	local s = PlayerDataService.get(player) or PlayerDataService.load(player)
+	cost = cost or 0
 	if (s.dubloons or 0) >= cost then
 		s.dubloons -= cost
-		-- player:SetAttribute("Coins", s.dubloons)
+		local ls = player:FindFirstChild("leaderstats")
+		if ls then
+			local d = ls:FindFirstChild("Dubloons")
+			if d then
+				d.Value = s.dubloons
+			end
+		end
 		return true
 	end
 	return false
+end
+
+function PlayerDataService.getDieSides(player)
+	local s = PlayerDataService.get(player) or PlayerDataService.load(player)
+	return s.dieSides or 4
+end
+function PlayerDataService.setDieSides(player, sides)
+	local s = PlayerDataService.get(player) or PlayerDataService.load(player)
+	s.dieSides = sides
 end
 
 return PlayerDataService

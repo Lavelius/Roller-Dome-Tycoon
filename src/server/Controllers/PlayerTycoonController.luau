@@ -22,7 +22,7 @@ local function getPlayerFromHit(hit)
 	end
 	return nil
 end
-function Tycoon._wirePlate(plate, ownerId, sationCF, cost, upgradeKey)
+function Tycoon._wirePlate(plate, ownerId, sationCF, cost, upgradeKey, podium)
 	local claimed = false
 	plate.CanTouch = true
 	plate.Touched:Connect(function(hit)
@@ -43,7 +43,7 @@ function Tycoon._wirePlate(plate, ownerId, sationCF, cost, upgradeKey)
 		claimed = true
 		local placePos = plate.Position + Vector3.new(0, 0.1, 0)
 		plate:Destroy()
-		local _cannon = CannonService.spawnAt(placePos, sationCF, ownerId)
+		local _cannon = CannonService.spawnAt(placePos, sationCF, ownerId, podium)
 		local state = PlayerDataService.get(plr) or PlayerDataService.load(plr)
 		state.upgrades[upgradeKey] = true
 		print(("Built %s for %s"):format(upgradeKey, plr.Name))
@@ -66,20 +66,20 @@ function Tycoon.hydrate(player, podium, stationCF, upgrades)
 	if upgrades and upgrades.cannon and plate1 then
 		local pos = plate1.Position + Vector3.new(0, 0.1, 0)
 		plate1:Destroy()
-		CannonService.spawnAt(pos, stationCF, ownerId)
+		CannonService.spawnAt(pos, stationCF, ownerId, podium)
 		plate1 = nil
 	end
 	if upgrades and upgrades.cannon2 and plate2 then
 		local pos = plate2.Position + Vector3.new(0, 0.1, 0)
 		plate2:Destroy()
-		CannonService.spawnAt(pos, stationCF, ownerId)
+		CannonService.spawnAt(pos, stationCF, ownerId, podium)
 		plate2 = nil
 	end
 	if plate1 then
-		Tycoon._wirePlate(plate1, ownerId, stationCF, Config.Costs.TycCannon1, "cannon1")
+		Tycoon._wirePlate(plate1, ownerId, stationCF, Config.Costs.TycCannon1, "cannon1", podium)
 	end
 	if plate2 then
-		Tycoon._wirePlate(plate2, ownerId, stationCF, Config.Costs.TycCannon2, "cannon2")
+		Tycoon._wirePlate(plate2, ownerId, stationCF, Config.Costs.TycCannon2, "cannon2", podium)
 	end
 end
 return Tycoon

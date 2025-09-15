@@ -59,6 +59,15 @@ Players.PlayerAdded:Connect(function(player)
 	-- 1) Ensure in-memory state exists
 	PlayerDataService.load(player)
 
+	-- Leaderstats
+	local ls = Instance.new("Folder")
+	ls.Name = "leaderstats"
+	ls.Parent = player
+	local dub = Instance.new("IntValue")
+	dub.Name = "Dubloons"
+	dub.Parent = ls
+	dub.Value = (PlayerDataService.get(player) or {}).dubloons or 0
+
 	-- 2) Claim a free station
 	local stationId, stationCF = StationService.claimFree(player)
 	if not stationId then
