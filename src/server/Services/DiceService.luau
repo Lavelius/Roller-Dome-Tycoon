@@ -188,4 +188,4 @@ end
 
 return DiceService
 
---wooby wobby wubbly goo wompy
+--wooby wobby wubbly goo wompy swampy goo
