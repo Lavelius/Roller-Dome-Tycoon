@@ -79,6 +79,77 @@ function CannonService.wire(cannon)
 		end
 		ShopService.upgradeDie(player, cannonKey) -- server validates + charges + sets new sides
 	end)
+
+	-- GREEN BUTTONS: any part with Number attr 'YawDeltaDeg'
+	for _, d in ipairs(cannon:GetDescendants()) do
+		if d:IsA("BasePart") then
+			local delta = d:GetAttribute("YawDeltaDeg")
+			if typeof(delta) == "number" then
+				local cd = d:FindFirstChildWhichIsA("ClickDetector") or Instance.new("ClickDetector", d)
+				cd.MaxActivationDistance = 16
+				cd.MouseClick:Connect(function(player)
+					CannonService.nudgeYaw(cannon, delta, player)
+				end)
+			end
+		end
+	end
+	local ReplicatedStorage = game:GetService("ReplicatedStorage")
+	local Remotes = ReplicatedStorage:FindFirstChild("Remotes") or Instance.new("Folder", ReplicatedStorage)
+	Remotes.Name = "Remotes"
+	local OpenShop = Remotes:FindFirstChild("OpenShop") or Instance.new("RemoteEvent", Remotes)
+	OpenShop.Name = "OpenShop"
+
+	for _, d in ipairs(cannon:GetDescendants()) do
+		if d:IsA("BasePart") and d:GetAttribute("OpensShop") == true then
+			local cd = d:FindFirstChildWhichIsA("ClickDetector") or Instance.new("ClickDetector", d)
+			cd.MaxActivationDistance = 16
+			cd.MouseClick:Connect(function(player)
+				if player.UserId ~= ownerId then
+					return
+				end
+				OpenShop:FireClient(player, cannonKey) -- client opens the UI
+			end)
+		end
+	end
+end
+
+local function v3Attr(inst, name, fallback)
+	local v = inst:GetAttribute(name)
+	return typeof(v) == "Vector3" and v or fallback
+end
+
+function CannonService.realign(cannon)
+	local pos = cannon:GetPivot().Position
+	local up = v3Attr(cannon, "StationUp", Vector3.yAxis)
+	local inward0 = v3Attr(cannon, "StationInward", -Vector3.zAxis)
+	local yawDeg = cannon:GetAttribute("YawDeg") or 0
+
+	-- rotate the base "inward" around 'up' by yawDeg (local yaw)
+	local rot = CFrame.fromAxisAngle(up.Unit, math.rad(yawDeg))
+	local dir = rot:VectorToWorldSpace(inward0)
+
+	local base = CFrame.lookAt(pos, pos + dir, up)
+	local lr = Config.Cannon.LocalRotationDeg or {}
+	local lp = Config.Cannon.LocalPositionOffset or {}
+
+	local final = base
+		* CFrame.Angles(math.rad(lr.x or 0), math.rad(lr.y or 0), math.rad(lr.z or 0))
+		* CFrame.new(lp.x or 0, lp.y or 0, lp.z or 0)
+
+	cannon:PivotTo(final)
+end
+
+function CannonService.nudgeYaw(cannon, deltaDeg, player)
+	local ownerId = cannon:GetAttribute("OwnerUserId")
+	if not player or player.UserId ~= ownerId then
+		return
+	end
+	local yaw = cannon:GetAttribute("YawDeg") or 0
+	yaw = yaw + (deltaDeg or 0)
+	-- keep it tidy (0..360)
+	yaw = (yaw % 360 + 360) % 360
+	cannon:SetAttribute("YawDeg", yaw)
+	CannonService.realign(cannon)
 end
 
 return CannonService
