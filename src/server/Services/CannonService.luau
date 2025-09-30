@@ -77,7 +77,7 @@ function CannonService.wire(cannon)
 		if player.UserId ~= ownerId then
 			return
 		end
-		ShopService.upgradeDie(player, cannonKey) -- server validates + charges + sets new sides
+		ShopService.upgradeDie(player, cannonKey) -- server validates + charges + sets new sides//
 	end)
 
 	-- GREEN BUTTONS: any part with Number attr 'YawDeltaDeg'
