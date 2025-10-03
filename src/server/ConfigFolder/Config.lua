@@ -18,4 +18,4 @@ return {
 		DespawnAfterScore = 0.8, -- NEW: seconds after awarding to delete the die
 	},
 }
--- boop
+-- boop bop
