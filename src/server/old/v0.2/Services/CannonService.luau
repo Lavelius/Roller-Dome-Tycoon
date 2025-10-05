@@ -1,5 +1,6 @@
 -- setup
 
+local PlayerDataService = game:GetService("PlayerDataService")
 local ServerStorage = game:GetService("ServerStorage")
 local ShopService = require(script.Parent:WaitForChild("ShopService"))
 local Config = require(
@@ -33,7 +34,7 @@ function CannonService.spawnAt(placePos, stationCF, ownerId, parentInstance, can
 	cannon:SetAttribute("CannonKey", cannonKey)
 	cannon:PivotTo(finalCF)
 	cannon.Parent = parentInstance or workspace:FindFirstChild("Cannons") or workspace
-	CannonService.wire(cannon)
+	CannonService.wire(cannon, cannonState)
 	return cannon
 end
 
@@ -45,7 +46,7 @@ function CannonService.wire(cannon)
 	click.MaxActivationDistance = Config.Cannon.ClickDistance or 64
 
 	local ownerId = tonumber(cannon:GetAttribute("OwnerUserId"))
-	local cannonKey = cannon:GetAttribute("CannonKey") or "cannon1"
+	local cannonState = PlayerDataService.get(player)
 	local lastFired = 0
 	local cooldown = Config.Cannon.CooldownSec or 1.0
 
