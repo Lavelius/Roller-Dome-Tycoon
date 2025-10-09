@@ -93,4 +93,4 @@ click.MouseClick:Connect(function(player)
 	print("Dice cannon used by", player.Name)
 	spawnAndLaunch()
 end)
---ajsdf;lkajsdf asdfasdfa
+--ajsdf;lkajsdf asdfasdfa asdfasdf
