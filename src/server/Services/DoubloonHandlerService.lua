@@ -4,9 +4,13 @@
 local DoubloonHandler = {}
 
 local DataService = require(script.Parent:WaitForChild("DataService"))
+local LeaderboardService = require(script.Parent:WaitForChild("LeaderboardService"))
 
 local function uidOf(who)
 	return typeof(who) == "Instance" and who.UserId or who
+end
+local function playerOf(who)
+	return typeof(who) == "Instance" and who or game:GetService("Players"):GetPlayerByUserId(uidOf(who))
 end
 
 function DoubloonHandler.GetBalance(who)
@@ -34,6 +38,10 @@ function DoubloonHandler.TryCharge(who, amount)
 	end
 
 	p.wallet.doubloons = bal - amount
+	local plr = playerOf(who)
+	if plr then
+		LeaderboardService.Refresh(plr)
+	end
 	return true, p.wallet.doubloons
 end
 
@@ -48,6 +56,10 @@ function DoubloonHandler.Grant(who, amount)
 	local bal = p.wallet.doubloons or 0
 	bal = math.max(0, bal + math.floor(tonumber(amount) or 0))
 	p.wallet.doubloons = bal
+	local plr = playerOf(who)
+	if plr then
+		LeaderboardService.Refresh(plr)
+	end
 	return bal
 end
 

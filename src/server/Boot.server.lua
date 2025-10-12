@@ -2,7 +2,7 @@
 local Players = game:GetService("Players")
 local DataService = require(script.Parent.Services:WaitForChild("DataService"))
 local StationService = require(script.Parent.Services:WaitForChild("StationService"))
-
+local LeaderboardService = require(script.Parent.Services:WaitForChild("LeaderboardService"))
 --1) Init station index once when server boots
 StationService.init()
 
@@ -52,6 +52,7 @@ Players.PlayerAdded:Connect(function(player)
 	StationService.hydrateCannons(player, stationId, profile)
 
 	print(("[Boot] %s claimed station %d"):format(player.Name, stationId))
+	LeaderboardService.Attach(player)
 end)
 
 -- Save the profile when the player leaves this server
