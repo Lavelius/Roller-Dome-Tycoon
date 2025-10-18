@@ -64,3 +64,5 @@ function DoubloonHandler.Grant(who, amount)
 end
 
 return DoubloonHandler
+
+-- Wibbly
